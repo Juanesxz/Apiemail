@@ -35,7 +35,7 @@ app.post('/enviar-excel', async (req, res) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: 'juaneswilli@gmail.com',
+      to: 'juaneswilli@hotmail.com',
       subject: 'Datos en Excel',
       text: 'Adjunto encontrarás el archivo con los datos en formato Excel.',
       attachments: [{ filename: 'datos.xlsx', path: excelPath }]
