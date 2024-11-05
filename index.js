@@ -25,7 +25,7 @@ app.post('/enviar-excel', async (req, res) => {
     const datos = req.body;
 
     if (!Array.isArray(datos) || datos.length === 0) {
-      return res.status(400).send('Datos inválidos o vacíos');
+      return res.status(400).json({ success: false, message: 'Datos inválidos o vacíos' });
     }
 
     const workbook = XLSX.utils.book_new();
@@ -44,12 +44,16 @@ app.post('/enviar-excel', async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    res.status(200).send('Correo enviado con éxito');
+    
+    // Eliminar el archivo después de enviar el correo
+    fs.unlink(excelPath, (err) => {
+      if (err) console.error('Error al eliminar el archivo:', err);
+    });
 
-    fs.unlinkSync(excelPath);
+    res.status(200).json({ success: true, message: 'Correo enviado con éxito' });
   } catch (error) {
     console.error('Error al enviar el correo:', error);
-    res.status(500).send('Error al enviar el correo. Inténtalo de nuevo más tarde.');
+    res.status(500).json({ success: false, message: 'Error al enviar el correo. Inténtalo de nuevo más tarde.' });
   }
 });
 
