@@ -4,9 +4,11 @@ const bodyParser = require('body-parser');
 const XLSX = require('xlsx');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
+const cors = require('cors');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 // Configura el transporte de correo (SMTP)
 const transporter = nodemailer.createTransport({
