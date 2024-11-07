@@ -29,7 +29,7 @@ app.post('/enviar-excel', async (req, res) => {
 
     // Transformar los datos en el formato deseado
     const datosTransformados = Object.entries(datos).map(([key, value]) => {
-      return { Nombre: key, Valor: value };
+      return { Nombre: key, Datos: value };
     });
 
     const workbook = XLSX.utils.book_new();
