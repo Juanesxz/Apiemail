@@ -19,17 +19,21 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Ruta para recibir los datos y enviar el correo
 app.post('/enviar-excel', async (req, res) => {
   try {
-    const datos = req.body;
+    const datos = req.body[0]; // Asumiendo que 'datos' es un array con un solo objeto
 
-    if (!Array.isArray(datos) || datos.length === 0) {
+    if (!datos) {
       return res.status(400).json({ success: false, message: 'Datos inválidos o vacíos' });
     }
 
+    // Transformar los datos en el formato deseado
+    const datosTransformados = Object.entries(datos).map(([key, value]) => {
+      return { Nombre: key, Valor: value };
+    });
+
     const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(datos);
+    const worksheet = XLSX.utils.json_to_sheet(datosTransformados);
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
 
     const excelPath = `./datos_${Date.now()}.xlsx`;
@@ -38,13 +42,13 @@ app.post('/enviar-excel', async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_TO,
-      subject: `Datos en Excel De Cierres de Caja En La Fecha ${datos[0].fechaRegistro}`,
+      subject: `Datos en Excel De Cierres de Caja En La Fecha ${datos.fechaRegistro}`,
       text: 'Adjunto encontrarás el archivo con los datos en formato Excel.',
-      attachments: [{ filename: `Cierres de Caja-${datos[0].fechaRegistro}.xlsx`, path: excelPath }]
+      attachments: [{ filename: `Cierres de Caja-${datos.fechaRegistro}.xlsx`, path: excelPath }],
     };
 
     await transporter.sendMail(mailOptions);
-    
+
     // Eliminar el archivo después de enviar el correo
     fs.unlink(excelPath, (err) => {
       if (err) console.error('Error al eliminar el archivo:', err);
@@ -56,6 +60,7 @@ app.post('/enviar-excel', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error al enviar el correo. Inténtalo de nuevo más tarde.' });
   }
 });
+
 
 const PORT = 3000;
 app.listen(PORT, () => {
