@@ -19,6 +19,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Ruta para recibir los datos y enviar el correo
 app.post('/enviar-excel', async (req, res) => {
   try {
     const datos = req.body;
@@ -27,13 +28,8 @@ app.post('/enviar-excel', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Datos inválidos o vacíos' });
     }
 
-    // Creamos un arreglo donde cada fila será un par clave-valor
-    const transposedData = Object.entries(datos[0]).map(([key, value]) => {
-      return { [key]: value }; // cada fila tiene solo un par clave-valor
-    });
-
     const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(transposedData);
+    const worksheet = XLSX.utils.json_to_sheet(datos);
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
 
     const excelPath = `./datos_${Date.now()}.xlsx`;
@@ -60,8 +56,6 @@ app.post('/enviar-excel', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error al enviar el correo. Inténtalo de nuevo más tarde.' });
   }
 });
-
-
 
 const PORT = 3000;
 app.listen(PORT, () => {
