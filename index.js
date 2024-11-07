@@ -19,7 +19,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Ruta para recibir los datos y enviar el correo
 app.post('/enviar-excel', async (req, res) => {
   try {
     const datos = req.body;
@@ -28,14 +27,9 @@ app.post('/enviar-excel', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Datos inválidos o vacíos' });
     }
 
-    // Transponer datos para tener columnas en lugar de filas
-    const transposedData = [];
-    const keys = Object.keys(datos[0]);
-    
-    keys.forEach((key) => {
-      const row = {};
-      row[key] = datos[0][key];  // toma solo el primer objeto en este caso, si solo necesitas uno
-      transposedData.push(row);
+    // Creamos un arreglo donde cada fila será un par clave-valor
+    const transposedData = Object.entries(datos[0]).map(([key, value]) => {
+      return { [key]: value }; // cada fila tiene solo un par clave-valor
     });
 
     const workbook = XLSX.utils.book_new();
@@ -66,6 +60,7 @@ app.post('/enviar-excel', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error al enviar el correo. Inténtalo de nuevo más tarde.' });
   }
 });
+
 
 
 const PORT = 3000;
